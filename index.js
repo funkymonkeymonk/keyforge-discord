@@ -4,20 +4,19 @@ const client = new Client()
 const Fuse = require('fuse.js')
 const axios = require('axios')
 
+const kc = axios.create({
+  baseURL: 'https://keyforge-compendium.com/api/v1',
+  auth: {
+    username: process.env.KC_USER,
+    password: process.env.KC_SECRET
+  },
+  headers: {
+    Accept: '*/*'
+  },
+});
 
-//TODO: Get card list from keyforge compendium
 const getCardList = () => {
-  return axios.get(
-    'https://keyforge-compendium.com/api/v1/sets/1/cards/',
-    {
-      auth: {
-        username: process.env.KC_USER,
-        password: process.env.KC_SECRET
-      },
-      headers: {
-        Accept: '*/*'
-      }
-    })
+  return kc.get('/sets/1/cards/')
     .then(function (response) {
       // handle success
       const cardList = response.data

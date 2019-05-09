@@ -15,18 +15,14 @@ const kc = axios.create({
   },
 });
 
-const getCardList = () => {
-  return kc.get('/sets/1/cards/')
-    .then(function (response) {
-      // handle success
-      const cardList = response.data
-      return cardList
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error)
-      console.log('Error ' + error.response.status);
-    })
+const getCardList = async () => {
+  try {
+    const [set1, set2] = await Promise.all([kc.get('/sets/1/cards/'), kc.get('/sets/2/cards/')]);
+    return set1.data.concat(set2.data)
+  } catch (e) {
+    console.log(e)
+    return []
+  }
 }
 
 const options = {
@@ -54,10 +50,13 @@ client.on('message', async msg => {
     console.log(msg.content + ' - Searching for ' + searchTerm)
     const res = fuse.search(searchTerm)
     console.log(res.length + ' results found.')
+
     if (res.length > 0) {
       const card = res[0]
+      console.log(card.title + ' selected')
+      // Todo print fuse score
       const cardImage = new Attachment(card.front_image)
-      msg.channel.send('Call of the Archons: ' + card.title, cardImage)
+      msg.channel.send(card.title, cardImage)
     } else {
       msg.channel.send('Card not found.')
     }
